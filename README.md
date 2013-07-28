@@ -27,7 +27,7 @@ BOOL mem_grow(void *mem, size_t num)
 Grows memory to `old_size + (num * sizeof(pointer_type))` and zeros out new memory with `UTILITIES_MEM_ZERO`. This function works only with non static memory. Returns `TRUE` on success, otherwise `FALSE`.
 
 ```c
-mem_grow_fast(void *mem, size_t num)
+BOOL mem_grow_fast(void *mem, size_t num)
 ```
 Same as `mem_grow` but does not zero out new memory.
 
