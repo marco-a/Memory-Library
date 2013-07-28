@@ -14,6 +14,25 @@
  */
 
 /*
+ * @_mem_get_static_size
+ * Returns static size of memory.
+ */
+size_t _mem_get_static_size(void *mem)
+{
+	if (mem == nil) {
+		return 0;
+	}
+
+	mem -= sizeof(size_t);
+
+	if (mem == nil) {
+		return 0;
+	}
+
+	return VOID_POINTER_TO_SIZE_T(mem, 0);
+}
+
+/*
  * @_mem_get_num_elements
  * Returns number of elements.
  */
@@ -187,6 +206,45 @@ void *_mem_alloc(size_t num, size_t size, const char *datatype, BOOL zero)
 }
 
 /*
+ * @_mem_alloc_static
+ * Allocates static memory.
+ */
+void *_mem_alloc_static(size_t num, size_t size, BOOL zero)
+{
+	void *mem;
+	size_t relative_size;
+	size_t absolute_size;
+
+	if (num == 0 || size == 0) {
+		return nil;
+	}
+
+	relative_size = num * size;
+
+	absolute_size = relative_size + sizeof(size_t);
+
+	if (zero == TRUE) {
+#if UTILITIES_MEM_ZERO == 0x00
+		mem = calloc(absolute_size, 1);
+#else
+		mem = malloc(absolute_size);
+#endif
+	} else {
+		mem = malloc(absolute_size);
+	}
+
+	if (mem == nil) {
+		return nil;
+	}
+
+	VOID_POINTER_TO_SIZE_T(mem, 0) = relative_size;
+
+	mem += sizeof(size_t);
+
+	return mem;
+}
+
+/*
  * @_mem_grow
  * Grows memory.
  */
@@ -290,10 +348,10 @@ BOOL _mem_shrink(void **mem_ptr, size_t num)
 }
 
 /*
- * @_mem_free
- * Frees memory.
+ * @_mem_dealloc
+ * Deallocates memory.
  */
-BOOL _mem_free(void **mem_ptr)
+BOOL _mem_dealloc(void **mem_ptr, BOOL is_static)
 {
 	if (mem_ptr == nil) {
 		return FALSE;
@@ -301,7 +359,11 @@ BOOL _mem_free(void **mem_ptr)
 		return FALSE;
 	}
 
-	*mem_ptr -= UTILITIES_MEM_OFFSET;
+	if (is_static) {
+		*mem_ptr -= sizeof(size_t);
+	} else {
+		*mem_ptr -= UTILITIES_MEM_OFFSET;
+	}
 
 	free(*mem_ptr);
 
@@ -344,7 +406,7 @@ BOOL _mem_release(void **mem_ptr)
 		VOID_POINTER_TO_UINT_T(mem, 0) = retain_count;
 
 		if (retain_count == 0) {
-			return _mem_free(mem_ptr);
+			return _mem_dealloc(mem_ptr, FALSE);
 		}
 	}
 
@@ -391,7 +453,7 @@ void _mem_retain(void *mem)
  * @_mem_dump
  * Dumps memory.
  */
-void _mem_dump(void *mem)
+void _mem_dump(void *mem, BOOL is_static)
 {
 	size_t relative_size;
 	size_t num_elements;
@@ -402,21 +464,37 @@ void _mem_dump(void *mem)
 		return;
 	}
 
-	// Get relative size
-	relative_size = mem_get_relative_size(mem);
-	// Get number of elements
-	num_elements = mem_get_num_elements(mem);
-	// Get size of single element
-	element_size = mem_get_element_size(mem);
-	// Get absolute size
-	absolute_size = mem_get_absolute_size(mem);
+	if (is_static == FALSE) {
+		// Get relative size
+		relative_size = mem_get_relative_size(mem);
+		// Get number of elements
+		num_elements = mem_get_num_elements(mem);
+		// Get size of single element
+		element_size = mem_get_element_size(mem);
+		// Get absolute size
+		absolute_size = mem_get_absolute_size(mem);
+	} else {
+		relative_size = mem_get_static_size(mem);
+
+		num_elements = element_size = 0;
+
+		absolute_size = relative_size + sizeof(size_t);
+	}
 
 	fprintf(stderr, "\n+-----------------[ MEMORY INFORMATION ]-----------------+\n");
-	fprintf(stderr, "| Datatype            : %-32s |\n", mem_get_datatype(mem));
-	fprintf(stderr, "| Retain count        : %-32u |\n", mem_get_retain_count(mem));
-	fprintf(stderr, "| Absolute address    : %-32p |\n", mem - UTILITIES_MEM_OFFSET);
-	fprintf(stderr, "| Absolute size       : %-26zu Bytes |\n", absolute_size);
-	fprintf(stderr, "| Offset              : %-26zu Bytes |\n", UTILITIES_MEM_OFFSET);
+
+	if (is_static == FALSE) {
+		fprintf(stderr, "| Datatype            : %-32s |\n", mem_get_datatype(mem));
+		fprintf(stderr, "| Retain count        : %-32u |\n", mem_get_retain_count(mem));
+		fprintf(stderr, "| Absolute address    : %-32p |\n", mem - UTILITIES_MEM_OFFSET);
+		fprintf(stderr, "| Absolute size       : %-26zu Bytes |\n", absolute_size);
+		fprintf(stderr, "| Offset              : %-26zu Bytes |\n", UTILITIES_MEM_OFFSET);
+	} else {
+		fprintf(stderr, "| Absolute address    : %-32p |\n", mem - sizeof(size_t));
+		fprintf(stderr, "| Absolute size       : %-26zu Bytes |\n", absolute_size);
+		fprintf(stderr, "| Offset              : %-26zu Bytes |\n", sizeof(size_t));
+	}
+
 	fprintf(stderr, "+--------------------------------------------------------+\n");
 	fprintf(stderr, "| Relative address    : %-32p |\n", mem);
 
@@ -426,19 +504,21 @@ void _mem_dump(void *mem)
 		fprintf(stderr, "| Relative size       : %-26zu Bytes |\n", relative_size);
 	}
 
-	fprintf(stderr, "+--------------------------------------------------------+\n");
+	if (is_static == FALSE) {
+		fprintf(stderr, "+--------------------------------------------------------+\n");
+		
+		if (num_elements == 1) {
+			fprintf(stderr, "| Number of elements  : %-24zu Element |\n", num_elements);
+		} else {
 
-	if (num_elements == 1) {
-		fprintf(stderr, "| Number of elements  : %-24zu Element |\n", num_elements);
-	} else {
+			fprintf(stderr, "| Number of elements  : %-23zu Elements |\n", num_elements);
+		}
 
-		fprintf(stderr, "| Number of elements  : %-23zu Elements |\n", num_elements);
-	}
-
-	if (element_size == 1) {
-		fprintf(stderr, "| Size of one element : %-27zu Byte |\n", element_size);
-	} else {
-		fprintf(stderr, "| Size of one element : %-26zu Bytes |\n", element_size);
+		if (element_size == 1) {
+			fprintf(stderr, "| Size of one element : %-27zu Byte |\n", element_size);
+		} else {
+			fprintf(stderr, "| Size of one element : %-26zu Bytes |\n", element_size);
+		}
 	}
 
 	fprintf(stderr, "+-----------------[ MEMORY DUMP        ]-----------------+\n");
