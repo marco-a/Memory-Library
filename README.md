@@ -1,5 +1,5 @@
-# Simplifying memory management in C #
-Dynamic memory management in C is very annoying, this library aims to provide an easy and nevertheless powerful way to use memory in C.
+# Simplifying dynamic allocated memory management in C #
+Dynamic memory management in C is very annoying, this library aims to provide an easy and nevertheless powerful way to use dynamic allocated memory in C.
 
 ==============
 ## Allocate memory
