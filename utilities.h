@@ -107,6 +107,13 @@ typedef uchar_t BOOL;
 #endif
 
 /*
+ * @_mem_get_static_size
+ * Returns static size of memory.
+ */
+UTILITIES_EXTERN size_t _mem_get_static_size(void *);
+#define mem_get_static_size(mem) _mem_get_static_size((void *)mem)
+
+/*
  * @_mem_get_num_elements
  * Returns number of elements.
  */
@@ -158,6 +165,14 @@ UTILITIES_EXTERN void *_mem_alloc(size_t, size_t, const char *, BOOL);
 #define mem_alloc_fast(num, type) (type *)_mem_alloc(num, sizeof(type), #type, FALSE)
 
 /*
+ * @_mem_alloc_static
+ * Allocates static memory.
+ */
+UTILITIES_EXTERN void *_mem_alloc_static(size_t, size_t, BOOL);
+#define mem_alloc_static(num, type) (type *)_mem_alloc_static(num, sizeof(type), TRUE)
+#define mem_alloc_static_fast(num, type) (type *)_mem_alloc_static(num, sizeof(type), FALSE)
+
+/*
  * @_mem_grow
  * Grows memory.
  */
@@ -173,12 +188,12 @@ UTILITIES_EXTERN BOOL _mem_shrink(void **, size_t);
 #define mem_shrink(ptr, num) _mem_shrink((void **)&ptr, num)
 
 /*
- * @_mem_free
- * Frees memory.
+ * @_mem_dealloc
+ * Deallocates memory.
  */
-UTILITIES_EXTERN BOOL _mem_free(void **);
-#define mem_dealloc(ptr) _mem_free((void **)&ptr)
-#define mem_free(ptr) _mem_free((void **)&ptr)
+UTILITIES_EXTERN BOOL _mem_dealloc(void **, BOOL);
+#define mem_dealloc(ptr) _mem_dealloc((void **)&ptr, FALSE)
+#define mem_free(ptr) _mem_dealloc((void **)&ptr, TRUE)
 
 /*
  * @_mem_release
@@ -198,7 +213,8 @@ UTILITIES_EXTERN void _mem_retain(void *);
  * @mem_dump
  * Dumps memory.
  */
-UTILITIES_EXTERN void _mem_dump(void *);
-#define mem_dump(ptr) _mem_dump((void *)ptr)
+UTILITIES_EXTERN void _mem_dump(void *, BOOL);
+#define mem_dump(ptr) _mem_dump((void *)ptr, FALSE)
+#define mem_dump_static(ptr) _mem_dump((void *)ptr, TRUE)
 
 #endif
