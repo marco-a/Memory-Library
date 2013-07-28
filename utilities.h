@@ -78,8 +78,9 @@ typedef uchar_t BOOL;
 #define UTILITIES_MEM_ZERO 0x00
 
 /*
- * Define offset.
+ * Define offset
  */
+
 #ifdef UTILITIES_MEM_USE_TYPE
 
 #ifdef UTILITIES_MEM_USE_RETAIN_COUNT
