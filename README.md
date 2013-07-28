@@ -1,6 +1,8 @@
 # Simplifying memory management in C
+Memory management in C is very annoying, this library aims to provide an easy and nevertheless powerful way to use memory in C.
 ==============
 
+## Allocate memory
 ```c
 void *mem_alloc(size_t num, type)
 ```
@@ -21,6 +23,7 @@ void *mem_alloc_static_fast(size_t num, type)
 ````
 Same as `mem_alloc_static` but does not zero out new memory.
 
+## Grow & shrink memory
 ```c
 BOOL mem_grow(void *mem, size_t num)
 ```
@@ -36,6 +39,7 @@ BOOL mem_shrink(void *mem, size_t num)
 ```
 Shrinks memory to `old_size - (num * sizeof(pointer_type)`. *This function works only with non static memory*. Returns `TRUE` on success, otherwise `FALSE`.
 
+## Free memory
 ```c
 BOOL mem_dealloc(void *mem)
 ```
@@ -83,6 +87,7 @@ size_t mem_get_static_size(void *mem)
 ```
 Returns static size of memory. This function works only with static memory.
 
+## Debug functions
 ```c
 void mem_dump(void *mem)
 ```
