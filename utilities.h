@@ -155,13 +155,15 @@ UTILITIES_EXTERN uint_t _mem_get_retain_count(void *);
  */
 UTILITIES_EXTERN void *_mem_alloc(size_t, size_t, const char *, BOOL);
 #define mem_alloc(num, type) (type *)_mem_alloc(num, sizeof(type), #type, TRUE)
+#define mem_alloc_fast(num, type) (type *)_mem_alloc(num, sizeof(type), #type, FALSE)
 
 /*
  * @_mem_grow
  * Grows memory.
  */
-UTILITIES_EXTERN BOOL _mem_grow(void **, size_t);
-#define mem_grow(ptr, num) _mem_grow((void **)&ptr, num)
+UTILITIES_EXTERN BOOL _mem_grow(void **, size_t, BOOL);
+#define mem_grow(ptr, num) _mem_grow((void **)&ptr, num, TRUE)
+#define mem_grow_fast(ptr, num) _mem_grow((void **)&ptr, num, FALSE)
 
 /*
  * @_mem_shrink
