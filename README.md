@@ -1,4 +1,4 @@
-# Simplifying dynamic allocated memory management in C #
+# Simplifying dynamic allocated memory in C #
 Dynamic memory management in C is very annoying, this library aims to provide an easy and nevertheless powerful way to use dynamic allocated memory in C.
 
 ==============
