@@ -46,6 +46,18 @@ BOOL mem_free(void *mem)
 ```
 Deallocates memory. This function works only with static memory. Returns `TRUE` on success, otherwise `FALSE`.
 
+## Retain Count functions
+
+```c
+BOOL mem_release(void *mem)
+```
+Decreases retain count by 1. This function only works with non static memory. When the memory´s retain count reaches 0 the object will be deallocated and `TRUE` is returned.
+
+```c
+void mem_retain(void *mem)
+```
+Increases retain count by 1. This function only works with non static memory.
+
 ## Helper functions
 
 ```c
