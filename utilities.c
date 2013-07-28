@@ -105,14 +105,14 @@ const char *_mem_get_datatype(void *mem)
 	mem -= sizeof(void *);
 
 	if (mem == nil) {
-		return nil;
+		return "unknown";
 	}
 
 #ifdef UTILITIES_MEM_USE_RETAIN_COUNT
 	mem -= sizeof(uint_t);
 
 	if (mem == nil) {
-		return nil;
+		return "unknown";
 	}
 #endif
 
