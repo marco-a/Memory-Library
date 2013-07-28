@@ -19,7 +19,7 @@
  */
 size_t _mem_get_num_elements(void *mem)
 {
-  if (mem == nil) {
+	if (mem == nil) {
 		return 0;
 	}
 
@@ -143,11 +143,15 @@ void *_mem_alloc(size_t num, size_t size, const char *datatype, BOOL zero)
 
 	absolute_size = relative_size + UTILITIES_MEM_OFFSET;
 
+	if (zero == TRUE) {
 #if UTILITIES_MEM_ZERO == 0x00
-	mem = calloc(absolute_size, 1);
+		mem = calloc(absolute_size, 1);
 #else
-	mem = malloc(absolute_size);
+		mem = malloc(absolute_size);
 #endif
+	} else {
+		mem = malloc(absolute_size);
+	}
 
 	if (mem == nil) {
 		return nil;
@@ -186,7 +190,7 @@ void *_mem_alloc(size_t num, size_t size, const char *datatype, BOOL zero)
  * @_mem_grow
  * Grows memory.
  */
-BOOL _mem_grow(void **mem_ptr, size_t num)
+BOOL _mem_grow(void **mem_ptr, size_t num, BOOL zero)
 {
 	void *mem;
 	void *new_mem;
@@ -230,7 +234,7 @@ BOOL _mem_grow(void **mem_ptr, size_t num)
 	new_mem += UTILITIES_MEM_OFFSET;
 
 	// Zero out new memory
-	{
+	if (zero == TRUE) {
 		void *start;
 
 		start = ((uchar_t *)new_mem) + relative_size;
