@@ -1,7 +1,7 @@
-# Simplifying memory management in C
+# Simplifying memory management in C #
 Memory management in C is very annoying, this library aims to provide an easy and nevertheless powerful way to use memory in C.
-==============
 
+==============
 ## Allocate memory
 ```c
 void *mem_alloc(size_t num, type)
