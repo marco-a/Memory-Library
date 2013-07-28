@@ -9,7 +9,7 @@ void *mem_alloc(size_t num, type)
 Allocates `num * sizeof(type)` Bytes and zeros out memory with `UTILITIES_MEM_ZERO`.
 
 ```c
-void *mem_alloc_fast(size_t num,type)
+void *mem_alloc_fast(size_t num, type)
 ```
 Same as `mem_alloc` but does not zero out new memory.
 
